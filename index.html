@@ -460,6 +460,19 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
     <div class="section-label">Всі заправки</div>
     <div id="fuel-entries-list"></div>
 
+    <div class="section-label">Культури (для вибору водіями)</div>
+    <div class="form-card">
+      <div class="form-title">Додати культуру / врожай</div>
+      <div class="field-row">
+        <div class="field" style="grid-column: span 2">
+          <label>Назва культури</label>
+          <input type="text" id="crop-name" placeholder="Наприклад: Рапс, Пшениця, Соняшник">
+        </div>
+      </div>
+      <button class="btn btn-green" onclick="addCrop()">Додати культуру</button>
+    </div>
+    <div id="crops-list" style="margin-bottom:20px"></div>
+
     <div class="section-label">Транспорт</div>
     <div class="form-card">
       <div class="form-title">Додати транспорт</div>
@@ -534,7 +547,7 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
 <div class="toast" id="toast"></div>
 
 <script>
-let state = { workers:[], entries:[], absences:[] };
+let state = { workers:[], entries:[], absences:[], vehicles:[], fuelEntries:[], crops:[] };
 let selectedWorker = null;
 let editingId = null;
 let resetTimer = null;
@@ -573,11 +586,12 @@ function initFirebase(){
         if(data.absences !== undefined) state.absences = data.absences||[];
         if(data.vehicles !== undefined) state.vehicles = data.vehicles||[];
         if(data.fuelEntries !== undefined) state.fuelEntries = data.fuelEntries||[];
+        if(data.crops !== undefined) state.crops = data.crops||[];
         renderAll();
         // Update fuel screen if open
         const fuelScreen = document.getElementById('screen-fuel');
         if(fuelScreen && fuelScreen.classList.contains('active')){
-          renderVehicleChips();renderVehicles();renderFuelEntries();renderFuelStats();
+          renderVehicleChips();renderVehicles();renderFuelEntries();renderFuelStats();renderCrops();
         }
       }
     });
@@ -740,7 +754,7 @@ function renderAll(){
   renderHeroHeader();
   if(document.getElementById('screen-fuel') && 
      document.getElementById('screen-fuel').classList.contains('active')){
-    renderVehicleChips();renderVehicles();renderFuelEntries();renderFuelStats();
+    renderVehicleChips();renderVehicles();renderFuelEntries();renderFuelStats();renderCrops();
   }
 }
 
@@ -1268,6 +1282,46 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
+
+// ── КУЛЬТУРИ / ВРОЖАЙ ─────────────────────────────────────────
+function addCrop(){
+  const input=document.getElementById('crop-name');
+  if(!input) return;
+  const name=input.value.trim();
+  if(!name){showToast('Введіть назву культури');return;}
+  if(!state.crops) state.crops=[];
+  if(state.crops.includes(name)){showToast('Така культура вже додана');return;}
+  state.crops.push(name);
+  save();
+  input.value='';
+  renderCrops();
+  showToast('✓ Культуру '+name+' додано');
+}
+
+function deleteCrop(name){
+  if(!confirm('Видалити культуру "'+name+'"?')) return;
+  state.crops = (state.crops||[]).filter(c=>c!==name);
+  save();
+  renderCrops();
+}
+
+function renderCrops(){
+  const el=document.getElementById('crops-list');
+  if(!el) return;
+  if(!state.crops||!state.crops.length){
+    el.innerHTML='<div class="empty" style="padding:20px"><div class="empty-title" style="font-size:14px">Культури ще не додано</div><div style="font-size:12px;color:var(--text3)">Додайте культури вище (наприклад: Рапс, Пшениця)</div></div>';
+    return;
+  }
+  el.innerHTML=state.crops.map(c=>`
+    <div class="vehicle-manage-item">
+      <div class="vehicle-icon" style="background:var(--greenDim);border-color:var(--green)">🌱</div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:600">${c}</div>
+      </div>
+      <div class="icon-btn del" onclick="deleteCrop('${c}')">🗑</div>
+    </div>
+  `).join('');
+}
 
 // ── ПАЛЬНЕ ────────────────────────────────────────────────────
 let selectedVehicle = null;

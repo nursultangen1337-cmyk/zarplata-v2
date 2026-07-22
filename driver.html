@@ -2,8 +2,9 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Заправка ⛽</title>
 <meta name="theme-color" content="#0d1117">
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -16,50 +17,82 @@
   --amber:#d29922;--amberDim:#3a2a00;
   --red:#f85149;--redDim:#3a1210;
   --text:#e6edf3;--text2:#8b949e;--text3:#484f58;
-  --radius:12px;--radius-sm:8px;
+  --radius:16px;--radius-sm:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;overscroll-behavior:none}
-body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height:100vh}
-.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 16px 14px;text-align:center}
-.header-icon{font-size:36px;margin-bottom:6px}
-.header-title{font-size:20px;font-weight:700;color:var(--amber)}
-.header-sub{font-size:12px;color:var(--text3);margin-top:2px}
-.content{flex:1;padding:20px 16px;overflow-y:auto;padding-bottom:40px}
-.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px}
-.form-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px}
-.field{margin-bottom:14px}
-.field label{display:block;font-size:12px;color:var(--text2);font-weight:500;margin-bottom:7px}
-.field input,.field select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:18px;padding:13px 14px;outline:none;transition:border .15s;font-family:inherit}
-.field input:focus,.field select:focus{border-color:var(--amber)}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;overscroll-behavior:none}
+body{display:flex;flex-direction:column;max-width:960px;margin:0 auto;min-height:100vh}
+
+.header{background:linear-gradient(180deg, #161b22 0%, #0d1117 100%);border-bottom:1px solid var(--border);padding:20px 20px 16px;text-align:center;position:sticky;top:0;z-index:50}
+.header-icon{font-size:42px;margin-bottom:4px}
+.header-title{font-size:24px;font-weight:800;color:var(--amber);letter-spacing:-.02em}
+.header-sub{font-size:13px;color:var(--text3);margin-top:2px;font-weight:500}
+
+.content{flex:1;padding:20px;overflow-y:auto;padding-bottom:60px}
+
+.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.form-title{font-size:15px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:14px;color:var(--text2);font-weight:600;margin-bottom:8px}
+.field input,.field select{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:20px;padding:14px 16px;outline:none;transition:border-color .15s, box-shadow .15s;font-family:inherit}
+.field input:focus,.field select:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(210,153,34,0.2)}
 .field select option{background:var(--bg3)}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn{width:100%;padding:16px;border-radius:var(--radius-sm);font-size:17px;font-weight:700;border:none;cursor:pointer;transition:all .15s;font-family:inherit}
-.btn:active{transform:scale(.97)}
-.btn-amber{background:var(--amber);color:#0d1117}
-.vehicle-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;font-size:15px;cursor:pointer;margin:0 8px 10px 0;transition:all .15s;font-weight:500}
-.vehicle-chip.selected{background:var(--amberDim);border-color:var(--amber);color:var(--amber)}
-.section-label{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin:20px 0 10px}
-.entry-item{display:flex;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 14px;margin-bottom:8px;gap:12px}
-.entry-icon{width:40px;height:40px;border-radius:10px;background:var(--amberDim);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.entry-info{flex:1}
-.entry-name{font-size:14px;font-weight:600;color:var(--text)}
-.entry-date{font-size:12px;color:var(--text3)}
-.entry-liters{font-size:18px;font-weight:700;color:var(--amber);flex-shrink:0}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* ВЕЛИКИЙ ЦИФРОВИЙ ДИСПЛЕЙ ДЛЯ ЛІТРІВ */
+.liters-display-box{background:linear-gradient(145deg, #121820, #1a222c);border:2px solid var(--amber);border-radius:18px;padding:16px;text-align:center;margin-bottom:20px;box-shadow:inset 0 2px 10px rgba(0,0,0,0.5), 0 0 20px rgba(210,153,34,0.15)}
+.liters-label{font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px}
+.liters-big-num{font-size:56px;font-weight:900;color:#fff;line-height:1.1;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;text-shadow:0 0 16px rgba(210,153,34,0.4)}
+.liters-unit{font-size:22px;color:var(--amber);margin-left:4px;font-weight:700}
+
+.btn{width:100%;padding:18px;border-radius:var(--radius-sm);font-size:20px;font-weight:800;border:none;cursor:pointer;transition:all .15s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn:active{transform:scale(.98)}
+.btn-amber{background:linear-gradient(135deg, #d29922 0%, #b88014 100%);color:#0d1117;box-shadow:0 4px 15px rgba(210,153,34,0.3)}
+
+.vehicle-chip{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;background:var(--bg3);border:1.5px solid var(--border);border-radius:24px;font-size:17px;cursor:pointer;margin:0 8px 10px 0;transition:all .15s;font-weight:600;min-height:52px}
+.vehicle-chip:active{transform:scale(.96)}
+.vehicle-chip.selected{background:var(--amberDim);border-color:var(--amber);color:var(--amber);box-shadow:0 0 12px rgba(210,153,34,0.2)}
+
+.crop-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg3);border:1.5px solid var(--border);border-radius:20px;font-size:16px;cursor:pointer;margin:0 6px 8px 0;transition:all .15s;font-weight:500}
+.crop-chip.selected{background:var(--greenDim);border-color:var(--green);color:var(--green)}
+
+.section-label{font-size:13px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:24px 0 12px}
+
+.entry-item{display:flex;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;gap:14px}
+.entry-icon{width:46px;height:46px;border-radius:12px;background:var(--amberDim);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.entry-info{flex:1;min-width:0}
+.entry-name{font-size:16px;font-weight:700;color:var(--text)}
+.entry-date{font-size:13px;color:var(--text3);margin-top:2px}
+.entry-liters{font-size:22px;font-weight:800;color:var(--amber);flex-shrink:0}
+
 .empty{text-align:center;padding:40px 20px;color:var(--text3)}
-.empty-icon{font-size:48px;margin-bottom:12px}
-.empty-title{font-size:16px;color:var(--text2);font-weight:600;margin-bottom:6px}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--amberDim);border:1px solid var(--amber);color:var(--amber);padding:12px 22px;border-radius:20px;font-size:14px;font-weight:600;z-index:300;opacity:0;transition:opacity .2s;white-space:nowrap}
-.toast.show{opacity:1}
-.money-fly{position:fixed;z-index:400;font-size:26px;font-weight:800;color:var(--amber);pointer-events:none;animation:moneyFly 1.2s cubic-bezier(.2,.8,.3,1) forwards}
+.empty-icon{font-size:54px;margin-bottom:12px}
+.empty-title{font-size:18px;color:var(--text2);font-weight:700;margin-bottom:6px}
+
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);background:var(--amberDim);border:1.5px solid var(--amber);color:var(--amber);padding:14px 28px;border-radius:30px;font-size:16px;font-weight:700;z-index:300;opacity:0;transition:opacity .25s, transform .25s;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,0.4)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(10px)}
+
+.money-fly{position:fixed;z-index:400;font-size:32px;font-weight:900;color:var(--amber);pointer-events:none;animation:moneyFly 1.2s cubic-bezier(.2,.8,.3,1) forwards;text-shadow:0 0 16px rgba(210,153,34,0.6)}
 @keyframes moneyFly{0%{opacity:1;transform:translateY(0) scale(1)}50%{opacity:1;transform:translateY(-80px) scale(1.4)}100%{opacity:0;transform:translateY(-160px) scale(.7)}}
-.no-vehicles{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;color:var(--text2);font-size:14px;line-height:1.7}
-.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
-.stat-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
-.stat-val{font-size:22px;font-weight:700;color:var(--amber)}
-.driver-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg3);border:1.5px solid var(--border);border-radius:20px;font-size:15px;cursor:pointer;margin:0 8px 10px 0;font-weight:500;color:var(--text);min-height:48px}
-.driver-chip.selected{background:#1a3a22;border-color:#3fb950;color:#3fb950}
+
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px}
+.stat-label{font-size:12px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.stat-val{font-size:26px;font-weight:800;color:var(--amber)}
+
+/* ПЛАНШЕТНА ТА МЕДІА АДАПТАЦІЯ */
+@media (min-width: 600px) {
+  body { max-width: 768px; }
+  .liters-big-num { font-size: 72px; }
+  .field input, .field select { font-size: 22px; padding: 16px 18px; }
+  .btn { font-size: 22px; padding: 20px; }
+}
+@media (min-width: 900px) {
+  body { max-width: 960px; }
+  .form-card { padding: 30px; }
+  .liters-big-num { font-size: 84px; }
+}
 </style>
 </head>
 <body>
@@ -72,37 +105,51 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
 
 <div class="content">
 
-  <div id="no-vehicles-msg" class="no-vehicles" style="display:none">
-    ⚠️ Транспорт ще не додано.<br>Зверніться до керівника для налаштування.
+  <div id="no-vehicles-msg" class="empty" style="display:none">
+    <div class="empty-icon">⚠️</div>
+    <div class="empty-title">Транспорт ще не додано</div>
+    <div style="font-size:14px;color:var(--text3)">Зверніться до керівника для налаштування транспорту.</div>
   </div>
 
   <div id="main-form">
     <div class="form-card">
-      <div class="form-title">Нова заправка</div>
+      <div class="form-title">⛽ Нова заправка</div>
+      
       <div class="field">
-        <label>Хто заправляє</label>
-        <div id="driver-worker-chips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-          <div style="color:var(--text3);font-size:13px">Завантаження...</div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Оберіть транспорт</label>
+        <label>Оберіть транспорт *</label>
         <div id="vehicle-chips"></div>
       </div>
+
+      <!-- ВЕЛИКИЙ ДИСПЛЕЙ ДЛЯ ТЫКАННЯ ЦИФР ВОДІЯМ -->
+      <div class="liters-display-box">
+        <div class="liters-label">Кількість літрів</div>
+        <div>
+          <span class="liters-big-num" id="big-liters-num">0</span>
+          <span class="liters-unit">л</span>
+        </div>
+      </div>
+
       <div class="field-row">
         <div class="field">
-          <label>Літрів заправлено</label>
-          <input type="number" id="fuel-liters" placeholder="0.0" inputmode="decimal" step="0.1" min="0">
+          <label>Введіть літри *</label>
+          <input type="number" id="fuel-liters" placeholder="0" inputmode="decimal" step="0.1" min="0" oninput="updateBigDisplay(this.value)">
         </div>
         <div class="field">
-          <label>Дата</label>
+          <label>Дата *</label>
           <input type="date" id="fuel-date">
         </div>
       </div>
-      <div class="field">
-        <label>Примітка</label>
-        <input type="text" id="fuel-note" placeholder="Де заправлявся, маршрут...">
+
+      <div class="field" id="crop-field" style="display:none">
+        <label>Культура / Врожай (необов'язково)</label>
+        <div id="crop-chips"></div>
       </div>
+
+      <div class="field">
+        <label>Примітка (необов'язково)</label>
+        <input type="text" id="fuel-note" placeholder="Поле №3, маршрут...">
+      </div>
+
       <button class="btn btn-amber" onclick="addEntry()">⛽ Записати заправку</button>
     </div>
 
@@ -111,7 +158,7 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
       <div class="stat-box"><div class="stat-label">Заправок</div><div class="stat-val" id="stat-count">0</div></div>
     </div>
 
-    <div class="section-label">Мої останні заправки</div>
+    <div class="section-label">Останні заправки</div>
     <div id="entries-list"></div>
   </div>
 
@@ -120,7 +167,6 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
 <div class="toast" id="toast"></div>
 
 <script>
-// Firebase (той самий конфіг що в index.html)
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyDQUd7iF1kQdUEoJ4yK_8mzl3UuZIcNBIY",
   authDomain: "zarplata-275f9.firebaseapp.com",
@@ -132,9 +178,18 @@ const FIREBASE_CONFIG = {
 };
 
 let db, fbDB = null, firebaseReady = false;
-let state = {vehicles:[], fuelEntries:[], workers:[]};
+let state = {vehicles:[], fuelEntries:[], crops:[]};
 let selectedVehicle = null;
-let selectedDriverWorker = null;
+let selectedCrop = null;
+
+function updateBigDisplay(val){
+  const el = document.getElementById('big-liters-num');
+  if(!val || parseFloat(val) <= 0){
+    el.textContent = '0';
+  } else {
+    el.textContent = val;
+  }
+}
 
 function initFirebase(){
   try{
@@ -147,14 +202,14 @@ function initFirebase(){
       if(data){
         state.vehicles = data.vehicles||[];
         state.fuelEntries = data.fuelEntries||[];
-        state.workers = data.workers||[];
+        state.crops = data.crops||[];
         if(!state.vehicles.length){
           document.getElementById('no-vehicles-msg').style.display='block';
           document.getElementById('main-form').style.display='none';
         } else {
           document.getElementById('no-vehicles-msg').style.display='none';
           document.getElementById('main-form').style.display='block';
-          renderChips();renderWorkerChips();renderEntries();renderStats();
+          renderChips();renderCropChips();renderEntries();renderStats();
         }
       }
     });
@@ -201,18 +256,17 @@ function load(){
   initFirebase();
   document.getElementById('fuel-date').value=fmtDate(new Date());
   if(!firebaseReady){
-    // Fallback до локальної бази
     openDB().then(()=>dbGet('zarplata_v3')).then(raw=>{
       if(raw){
         state.vehicles=raw.vehicles||[];
         state.fuelEntries=raw.fuelEntries||[];
-        state.workers=raw.workers||[];
+        state.crops=raw.crops||[];
       }
       if(!state.vehicles.length){
         document.getElementById('no-vehicles-msg').style.display='block';
         document.getElementById('main-form').style.display='none';
       } else {
-        renderChips();renderWorkerChips();renderEntries();renderStats();
+        renderChips();renderCropChips();renderEntries();renderStats();
       }
     });
   }
@@ -220,7 +274,6 @@ function load(){
 
 function save(){
   if(firebaseReady && fbDB){
-    // Читаємо поточний стан з Firebase і оновлюємо тільки fuelEntries
     fbDB.ref('zarplata_data/fuelEntries').set(state.fuelEntries);
   } else {
     dbGet('zarplata_v3').then(raw=>{
@@ -240,50 +293,49 @@ function renderChips(){
 }
 function selectVehicle(id){selectedVehicle=(selectedVehicle===id)?null:id;renderChips();}
 
-function renderWorkerChips(){
-  const el=document.getElementById('driver-worker-chips');
-  if(!el)return;
-  if(!state.workers||!state.workers.length){
-    el.innerHTML='<div style="color:var(--text3);font-size:13px">Немає працівників</div>';
+function renderCropChips(){
+  const fieldEl = document.getElementById('crop-field');
+  const el = document.getElementById('crop-chips');
+  if(!state.crops || !state.crops.length){
+    fieldEl.style.display = 'none';
     return;
   }
-  el.innerHTML=state.workers.map(function(w){
-    var sel=selectedDriverWorker===w.id;
-    var parts=[];
-    var wid=w.id;
-    parts.push('<div onclick="selectDriverWorker(\'' + wid + '\')" ');
-    parts.push('class="driver-chip'+(sel?' selected':'')+'"');
-    parts.push('>');
-    parts.push('<div style="width:28px;height:28px;border-radius:50%;background:'+(sel?'#0d2818':'var(--bg4)')+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:'+(sel?'#3fb950':'var(--text2)')+'">');
-    parts.push((w.last[0]||'')+(w.first[0]||''));
-    parts.push('</div>');
-    parts.push(w.last+' '+w.first+(sel?' ✓':''));
-    parts.push('</div>');
-    return parts.join('');
-  }).join('');
+  fieldEl.style.display = 'block';
+  el.innerHTML = state.crops.map(c => `
+    <div class="crop-chip ${selectedCrop===c?'selected':''}" onclick="selectCrop('${c}')">
+      🌱 ${c}
+    </div>
+  `).join('');
 }
-function selectDriverWorker(id){
-  selectedDriverWorker=(selectedDriverWorker===id)?null:id;
-  renderWorkerChips();
+
+function selectCrop(crop){
+  selectedCrop = (selectedCrop === crop) ? null : crop;
+  renderCropChips();
 }
 
 function addEntry(){
-  if(!selectedVehicle){showToast('Оберіть транспорт');return;}
+  if(!selectedVehicle){showToast('Оберіть транспорт!');return;}
   const liters=parseFloat(document.getElementById('fuel-liters').value);
   const date=document.getElementById('fuel-date').value;
-  const note=document.getElementById('fuel-note').value.trim();
-  if(!liters||liters<=0){showToast('Введіть кількість літрів');return;}
-  if(!date){showToast('Вкажіть дату');return;}
+  let note=document.getElementById('fuel-note').value.trim();
+  if(selectedCrop){
+    note = note ? (selectedCrop + ' · ' + note) : selectedCrop;
+  }
+
+  if(!liters||liters<=0){showToast('Введіть кількість літрів!');return;}
+  if(!date){showToast('Вкажіть дату!');return;}
+  
   const entry={id:uid(),vehicleId:selectedVehicle,liters,date,note};
-  if(selectedDriverWorker) entry.driverId=selectedDriverWorker;
   state.fuelEntries.push(entry);
   save();
+  
   const v=state.vehicles.find(vv=>vv.id===selectedVehicle);
-  const w=selectedDriverWorker?state.workers.find(ww=>ww.id===selectedDriverWorker):null;
   flyFuel(liters);
   document.getElementById('fuel-liters').value='';
   document.getElementById('fuel-note').value='';
-  showToast('✓ '+(v?v.name:'')+' — '+liters+' л'+(w?' ('+w.last+')':''));
+  updateBigDisplay(0);
+  
+  showToast('✓ '+(v?v.name:'')+' — '+liters+' л');
   if(navigator.vibrate)navigator.vibrate([40,20,60]);
   renderEntries();renderStats();
 }
@@ -292,17 +344,16 @@ function renderEntries(){
   const el=document.getElementById('entries-list');
   const entries=state.fuelEntries.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,15);
   if(!entries.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">⛽</div><div class="empty-title">Ще немає заправок</div><div class="empty-text">Додайте першу вище</div></div>';
+    el.innerHTML='<div class="empty"><div class="empty-icon">⛽</div><div class="empty-title">Ще немає заправок</div></div>';
     return;
   }
   el.innerHTML=entries.map(f=>{
     const v=state.vehicles.find(vv=>vv.id===f.vehicleId);
     const icon=v?v.type.split(' ')[0]:'🚗';
-    const dw=f.driverId?state.workers.find(ww=>ww.id===f.driverId):null;
     return `<div class="entry-item">
       <div class="entry-icon">${icon}</div>
       <div class="entry-info">
-        <div class="entry-name">${v?v.name:'—'}${dw?' <span style="font-size:11px;color:var(--text3)">· '+dw.last+'</span>':''}</div>
+        <div class="entry-name">${v?v.name:'—'}</div>
         <div class="entry-date">${displayDate(f.date)}${f.note?' · '+f.note:''}</div>
       </div>
       <div class="entry-liters">${f.liters.toFixed(1)} л</div>
