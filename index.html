@@ -235,7 +235,7 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
   <div class="tab" onclick="showScreen('chart',this)"><span class="tab-icon">▦</span>Графік</div>
   <div class="tab" onclick="showScreen('workers',this)"><span class="tab-icon">◉</span>Праців.</div>
   <div class="tab" onclick="showScreen('fuel',this)"><span class="tab-icon">⛽</span>Пальне</div>
-  <div class="tab" onclick="showScreen('crop-analytics',this)"><span class="tab-icon">🌾</span>Аналітика</div>
+  <div class="tab" onclick="showScreen('crop-analytics',this)"><span class="tab-icon">📊</span>Аналітика пального</div>
 </div>
 
 <div class="content">
@@ -495,10 +495,11 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
             <option>🌾 Комбайн</option>
             <option>⚙️ Інша техніка</option>
           </select>
-        </div>
-      </div>
       <button class="btn btn-green" style="background:var(--amber);color:#0d1117" onclick="addVehicle()">Додати</button>
     </div>
+    <div id="vehicles-list"></div>
+  </div>
+
   <!-- АНАЛІТИКА КУЛЬТУР ТА ВИТРАТ -->
   <div id="screen-crop-analytics" class="screen">
     <div class="form-card">
