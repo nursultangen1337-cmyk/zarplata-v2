@@ -256,16 +256,36 @@ function dbSet(key,val){
   });
 }
 
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-function fmtTime(d){return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');}
-function fmtTimeShort(d){return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function getKyivNow(){
+  // Returns Date object adjusted or formatted to Europe/Kiev
+  return new Date();
+}
+
+function fmtKyivDate(d){
+  const opts = { timeZone: 'Europe/Kyiv', year: 'numeric', month: '2-digit', day: '2-digit' };
+  const parts = new Intl.DateTimeFormat('en-CA', opts).formatToParts(d);
+  const y = parts.find(p=>p.type==='year').value;
+  const m = parts.find(p=>p.type==='month').value;
+  const da = parts.find(p=>p.type==='day').value;
+  return `${y}-${m}-${da}`;
+}
+
+function fmtKyivTime(d){
+  const opts = { timeZone: 'Europe/Kyiv', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+  return new Intl.DateTimeFormat('uk-UA', opts).format(d);
+}
+
+function fmtKyivTimeShort(d){
+  const opts = { timeZone: 'Europe/Kyiv', hour: '2-digit', minute: '2-digit', hour12: false };
+  return new Intl.DateTimeFormat('uk-UA', opts).format(d);
+}
 
 function startLiveClock(){
   const display = document.getElementById('auto-date-time-display');
   function update(){
-    const now = new Date();
+    const now = getKyivNow();
     if(display){
-      display.textContent = displayDate(fmtDate(now)) + ' · ' + fmtTime(now);
+      display.textContent = displayDate(fmtKyivDate(now)) + ' · ' + fmtKyivTime(now);
     }
   }
   update();
@@ -337,8 +357,8 @@ function addEntry(){
   if(!selectedVehicle){showToast('Оберіть транспорт!');return;}
   const liters=parseFloat(document.getElementById('fuel-liters').value);
   const now = new Date();
-  const date = fmtDate(now);
-  const time = fmtTimeShort(now);
+  const date = fmtKyivDate(now);
+  const time = fmtKyivTimeShort(now);
   const purpose = document.getElementById('fuel-purpose') ? document.getElementById('fuel-purpose').value.trim() : '';
   let note = document.getElementById('fuel-note').value.trim();
   
