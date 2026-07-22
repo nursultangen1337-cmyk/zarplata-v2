@@ -1541,11 +1541,12 @@ function renderFuelEntries(){
     const v=state.vehicles?state.vehicles.find(vv=>vv.id===f.vehicleId):null;
     const d=f.driverId?getWorker(f.driverId):null;
     const icon=v?v.type.split(' ')[0]:'🚗';
+    const timeStr = f.time ? (' (' + f.time.slice(0,5) + ')') : '';
     return `<div class="entry-item">
       <div class="entry-avatar" style="background:var(--amberDim);color:var(--amber);font-size:20px">${icon}</div>
       <div class="entry-info">
         <div class="entry-name">${v?v.name:'—'}${d?' <span style="font-size:11px;color:var(--text3)">· '+workerName(d)+'</span>':''}</div>
-        <div class="entry-date">${displayDate(f.date)}${f.note?' · '+f.note:''}</div>
+        <div class="entry-date">${displayDate(f.date)}${timeStr}${f.note?' · '+f.note:''}</div>
       </div>
       <div class="entry-amount" style="color:var(--amber)">${f.liters.toFixed(1)} л</div>
       <div class="entry-actions">
