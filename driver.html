@@ -353,12 +353,20 @@ function selectCrop(crop){
 
 function addEntry(){
   if(!selectedVehicle){showToast('Оберіть транспорт!');return;}
-  const liters=parseFloat(document.getElementById('fuel-liters').value);
+  const litersEl = document.getElementById('fuel-liters');
+  const liters = litersEl ? parseFloat(litersEl.value) : 0;
+  if(isNaN(liters) || liters <= 0){
+    showToast('Введіть кількість літрів!');
+    return;
+  }
+
   const now = new Date();
   const date = fmtKyivDate(now);
   const time = fmtKyivTimeShort(now);
-  const purpose = document.getElementById('fuel-purpose') ? document.getElementById('fuel-purpose').value.trim() : '';
-  let note = document.getElementById('fuel-note').value.trim();
+  const purposeEl = document.getElementById('fuel-purpose');
+  const purpose = purposeEl ? purposeEl.value.trim() : '';
+  const noteEl = document.getElementById('fuel-note');
+  let note = noteEl ? noteEl.value.trim() : '';
   
   const notesParts=[];
   if(selectedCrop) notesParts.push('🌱 '+selectedCrop);
@@ -366,17 +374,15 @@ function addEntry(){
   if(note) notesParts.push(note);
   const fullNote = notesParts.join(' · ');
 
-  if(!liters||liters<=0){showToast('Введіть кількість літрів!');return;}
-  
   const entry={id:uid(),vehicleId:selectedVehicle,liters,date,time,crop:selectedCrop||'',purpose,note:fullNote};
   state.fuelEntries.push(entry);
   save();
   
   const v=state.vehicles.find(vv=>vv.id===selectedVehicle);
   flyFuel(liters);
-  document.getElementById('fuel-liters').value='';
-  if(document.getElementById('fuel-purpose')) document.getElementById('fuel-purpose').value='';
-  document.getElementById('fuel-note').value='';
+  if(litersEl) litersEl.value='';
+  if(purposeEl) purposeEl.value='';
+  if(noteEl) noteEl.value='';
   selectedCrop=null;
   renderCropChips();
   updateBigDisplay(0);
@@ -437,15 +443,6 @@ function showToast(msg){
 }
 
 load();
-document.addEventListener('DOMContentLoaded', function(){
-  const btn = document.getElementById('submit-fuel-btn');
-  if(btn){
-    btn.addEventListener('touchend', function(e){
-      e.preventDefault();
-      addEntry();
-    }, {passive: false});
-  }
-});
 </script>
 </body>
 </html>
