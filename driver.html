@@ -130,22 +130,19 @@ body{display:flex;flex-direction:column;max-width:960px;margin:0 auto;min-height
       </div>
 
       <div class="field-row">
-        <div class="field">
+        <div class="field" style="grid-column: span 2">
           <label>Введіть літри *</label>
           <input type="number" id="fuel-liters" placeholder="0" inputmode="decimal" step="0.1" min="0" oninput="updateBigDisplay(this.value)">
         </div>
-        <div class="field">
-          <label>Дата *</label>
-          <input type="date" id="fuel-date">
-        </div>
       </div>
       
-      <div class="field">
-        <label style="display:flex;justify-content:space-between;align-items:center">
-          <span>Час заправки *</span>
-          <span style="font-size:12px;color:var(--amber);font-weight:700" id="live-clock-badge">⏱️ 00:00:00</span>
-        </label>
-        <input type="time" id="fuel-time" step="1" style="font-weight:700">
+      <!-- АВТОМАТИЧНА ДАТА ТА ЧАС (БЕЗ РУЧНОГО ВВЕДЕННЯ) -->
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;font-weight:700">Дата та час заправки (автоматично)</div>
+          <div style="font-size:16px;font-weight:700;color:var(--text);margin-top:2px" id="auto-date-time-display">—</div>
+        </div>
+        <div style="font-size:22px">⏱️</div>
       </div>
 
       <div class="field" id="crop-field" style="display:none">
@@ -264,25 +261,19 @@ function fmtTime(d){return String(d.getHours()).padStart(2,'0')+':'+String(d.get
 function fmtTimeShort(d){return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
 
 function startLiveClock(){
-  const clockBadge = document.getElementById('live-clock-badge');
-  const timeInput = document.getElementById('fuel-time');
+  const display = document.getElementById('auto-date-time-display');
   function update(){
     const now = new Date();
-    if(clockBadge) clockBadge.textContent = '⏱️ ' + fmtTime(now);
-    if(timeInput && !timeInput.dataset.userEdited){
-      timeInput.value = fmtTimeShort(now);
+    if(display){
+      display.textContent = displayDate(fmtDate(now)) + ' · ' + fmtTime(now);
     }
   }
   update();
   setInterval(update, 1000);
-  if(timeInput){
-    timeInput.addEventListener('input', () => { timeInput.dataset.userEdited = "true"; });
-  }
 }
 
 function load(){
   initFirebase();
-  document.getElementById('fuel-date').value=fmtDate(new Date());
   startLiveClock();
   if(!firebaseReady){
     openDB().then(()=>dbGet('zarplata_v3')).then(raw=>{
@@ -345,10 +336,11 @@ function selectCrop(crop){
 function addEntry(){
   if(!selectedVehicle){showToast('Оберіть транспорт!');return;}
   const liters=parseFloat(document.getElementById('fuel-liters').value);
-  const date=document.getElementById('fuel-date').value;
-  const time=document.getElementById('fuel-time')?document.getElementById('fuel-time').value:fmtTimeShort(new Date());
-  const purpose=document.getElementById('fuel-purpose')?document.getElementById('fuel-purpose').value.trim():'';
-  let note=document.getElementById('fuel-note').value.trim();
+  const now = new Date();
+  const date = fmtDate(now);
+  const time = fmtTimeShort(now);
+  const purpose = document.getElementById('fuel-purpose') ? document.getElementById('fuel-purpose').value.trim() : '';
+  let note = document.getElementById('fuel-note').value.trim();
   
   const notesParts=[];
   if(selectedCrop) notesParts.push('🌱 '+selectedCrop);
@@ -357,7 +349,6 @@ function addEntry(){
   const fullNote = notesParts.join(' · ');
 
   if(!liters||liters<=0){showToast('Введіть кількість літрів!');return;}
-  if(!date){showToast('Вкажіть дату!');return;}
   
   const entry={id:uid(),vehicleId:selectedVehicle,liters,date,time,crop:selectedCrop||'',purpose,note:fullNote};
   state.fuelEntries.push(entry);
@@ -368,7 +359,6 @@ function addEntry(){
   document.getElementById('fuel-liters').value='';
   if(document.getElementById('fuel-purpose')) document.getElementById('fuel-purpose').value='';
   document.getElementById('fuel-note').value='';
-  if(document.getElementById('fuel-time')) delete document.getElementById('fuel-time').dataset.userEdited;
   selectedCrop=null;
   renderCropChips();
   updateBigDisplay(0);
