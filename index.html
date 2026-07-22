@@ -235,6 +235,7 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
   <div class="tab" onclick="showScreen('chart',this)"><span class="tab-icon">▦</span>Графік</div>
   <div class="tab" onclick="showScreen('workers',this)"><span class="tab-icon">◉</span>Праців.</div>
   <div class="tab" onclick="showScreen('fuel',this)"><span class="tab-icon">⛽</span>Пальне</div>
+  <div class="tab" onclick="showScreen('crop-analytics',this)"><span class="tab-icon">🌾</span>Аналітика</div>
 </div>
 
 <div class="content">
@@ -406,8 +407,12 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
         </div>
       </div>
       <div class="field">
+        <label>Призначення / Мета поїздки</label>
+        <input type="text" id="fuel-purpose" placeholder="Наприклад: Посівна, Доставка зерна, Поле №5...">
+      </div>
+      <div class="field">
         <label>Примітка (необов'язково)</label>
-        <input type="text" id="fuel-note" placeholder="Наприклад: поле №3">
+        <input type="text" id="fuel-note" placeholder="Додаткові деталі...">
       </div>
       <button class="btn btn-green" style="background:var(--amber);color:#0d1117" onclick="addFuelEntry()">Записати заправку</button>
     </div>
@@ -494,9 +499,56 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
       </div>
       <button class="btn btn-green" style="background:var(--amber);color:#0d1117" onclick="addVehicle()">Додати</button>
     </div>
-    <div id="vehicles-list"></div>
-  </div>
+  <!-- АНАЛІТИКА КУЛЬТУР ТА ВИТРАТ -->
+  <div id="screen-crop-analytics" class="screen">
+    <div class="form-card">
+      <div class="form-title">🌾 Аналітика заправки & Культури</div>
+      
+      <div class="field-row">
+        <div class="field">
+          <label>Ціна за 1 літр пального (₴)</label>
+          <input type="number" id="analytics-fuel-price" placeholder="55.0" step="0.1" min="0" value="55" oninput="renderCropAnalytics()">
+        </div>
+        <div class="field">
+          <label>Транспорт (фільтр)</label>
+          <select id="analytics-vehicle-filter" onchange="renderCropAnalytics()">
+            <option value="">Весь транспорт</option>
+          </select>
+        </div>
+      </div>
 
+      <div class="field-row">
+        <div class="field">
+          <label>Дата від</label>
+          <input type="date" id="analytics-date-from" onchange="renderCropAnalytics()">
+        </div>
+        <div class="field">
+          <label>Дата до</label>
+          <input type="date" id="analytics-date-to" onchange="renderCropAnalytics()">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+        <button class="btn btn-outline btn-sm" onclick="setAnalyticsQuickDays(0)">Сьогодні</button>
+        <button class="btn btn-outline btn-sm" onclick="setAnalyticsQuickDays(7)">7 днів</button>
+        <button class="btn btn-outline btn-sm" onclick="setAnalyticsQuickDays(30)">30 днів</button>
+        <button class="btn btn-outline btn-sm" onclick="setAnalyticsQuickDays(365)">Весь період</button>
+      </div>
+
+      <div class="field">
+        <label>Оберіть культури для підрахунку (можна декілька):</label>
+        <div id="analytics-crop-checkboxes" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+          <!-- Checkboxes for crops -->
+        </div>
+      </div>
+    </div>
+
+    <!-- РЕЗУЛЬТАТИ АНАЛІТИКИ -->
+    <div id="analytics-summary-cards"></div>
+
+    <div class="section-label">Деталізація заправки по культурах</div>
+    <div id="analytics-details-list"></div>
+  </div>
 
 </div><!-- /screens-track -->
 </div>
@@ -720,6 +772,7 @@ function showScreen(name, btn, animate){
   else if(name==='workers') setTimeout(renderWorkers,50);
   else if(name==='add') setTimeout(renderTodayList,50);
   else if(name==='chart') setTimeout(renderChart,50);
+  else if(name==='crop-analytics') setTimeout(renderCropAnalytics,50);
   else if(name==='fuel'){
     if(!state.vehicles) state.vehicles=[];
     if(!state.fuelEntries) state.fuelEntries=[];
@@ -1422,15 +1475,23 @@ function addFuelEntry(){
   if(!selectedVehicle){showToast('Оберіть транспорт');return;}
   const liters=parseFloat(document.getElementById('fuel-liters').value);
   const date=document.getElementById('fuel-date').value;
-  const note=document.getElementById('fuel-note').value.trim();
+  const purpose=document.getElementById('fuel-purpose')?document.getElementById('fuel-purpose').value.trim():'';
+  let note=document.getElementById('fuel-note').value.trim();
+  
+  const notesParts=[];
+  if(purpose) notesParts.push('🎯 '+purpose);
+  if(note) notesParts.push(note);
+  const fullNote = notesParts.join(' · ');
+
   if(!liters||liters<=0){showToast('Введіть кількість літрів');return;}
   if(!date){showToast('Вкажіть дату');return;}
   if(!state.fuelEntries)state.fuelEntries=[];
-  const entry={id:uid(),vehicleId:selectedVehicle,liters,date,note};
+  const entry={id:uid(),vehicleId:selectedVehicle,liters,date,purpose,note:fullNote};
   if(selectedFuelDriver) entry.driverId=selectedFuelDriver;
   state.fuelEntries.push(entry);
   save();
   document.getElementById('fuel-liters').value='';
+  if(document.getElementById('fuel-purpose')) document.getElementById('fuel-purpose').value='';
   document.getElementById('fuel-note').value='';
   const v=state.vehicles.find(vv=>vv.id===selectedVehicle);
   const d=selectedFuelDriver?getWorker(selectedFuelDriver):null;
@@ -1623,11 +1684,140 @@ function copyDriverLink(){
   navigator.clipboard.writeText(url).then(()=>showToast('✓ Посилання скопійовано'));
 }
 
+// ── АНАЛІТИКА КУЛЬТУР ТА ВИТРАТ ──────────────────────────────
+let selectedAnalyticsCrops = [];
+
+function updateAnalyticsVehicleFilter(){
+  const el = document.getElementById('analytics-vehicle-filter');
+  if(!el) return;
+  const cur = el.value;
+  el.innerHTML = '<option value="">Весь транспорт</option>' + (state.vehicles||[]).map(v=>'<option value="'+v.id+'">'+v.type.split(' ')[0]+' '+v.name+'</option>').join('');
+  el.value = cur;
+}
+
+function setAnalyticsQuickDays(days){
+  const to = new Date();
+  const from = new Date();
+  if(days === 0){
+    // Today
+    document.getElementById('analytics-date-from').value = fmtDate(to);
+    document.getElementById('analytics-date-to').value = fmtDate(to);
+  } else if(days === 365){
+    // All time
+    document.getElementById('analytics-date-from').value = '';
+    document.getElementById('analytics-date-to').value = '';
+  } else {
+    from.setDate(from.getDate() - days);
+    document.getElementById('analytics-date-from').value = fmtDate(from);
+    document.getElementById('analytics-date-to').value = fmtDate(to);
+  }
+  renderCropAnalytics();
+}
+
+function toggleAnalyticsCrop(cropName){
+  const idx = selectedAnalyticsCrops.indexOf(cropName);
+  if(idx >= 0){
+    selectedAnalyticsCrops.splice(idx, 1);
+  } else {
+    selectedAnalyticsCrops.push(cropName);
+  }
+  renderCropAnalytics();
+}
+
+function renderCropAnalytics(){
+  updateAnalyticsVehicleFilter();
+  const checkboxesEl = document.getElementById('analytics-crop-checkboxes');
+  const summaryEl = document.getElementById('analytics-summary-cards');
+  const detailsEl = document.getElementById('analytics-details-list');
+  if(!checkboxesEl || !summaryEl || !detailsEl) return;
+
+  const crops = state.crops || [];
+  
+  // Render crop buttons/checkboxes
+  if(!crops.length){
+    checkboxesEl.innerHTML = '<div style="color:var(--text3);font-size:13px">Спочатку додайте культури у вкладці «Пальне»</div>';
+  } else {
+    checkboxesEl.innerHTML = crops.map(c => {
+      const active = selectedAnalyticsCrops.includes(c);
+      return `<div onclick="toggleAnalyticsCrop('${c}')" class="crop-chip ${active?'selected':''}" style="cursor:pointer">
+        ${active?'✓ ':'+ '}🌱 ${c}
+      </div>`;
+    }).join('') + `<div onclick="selectedAnalyticsCrops=[];renderCropAnalytics();" class="crop-chip" style="cursor:pointer;background:var(--bg4)">✕ Скинути вибір</div>`;
+  }
+
+  // Filters
+  const price = parseFloat(document.getElementById('analytics-fuel-price').value) || 0;
+  const vid = document.getElementById('analytics-vehicle-filter').value;
+  const dateFrom = document.getElementById('analytics-date-from').value;
+  const dateTo = document.getElementById('analytics-date-to').value;
+
+  let entries = (state.fuelEntries || []).slice();
+  if(vid) entries = entries.filter(f => f.vehicleId === vid);
+  if(dateFrom) entries = entries.filter(f => f.date >= dateFrom);
+  if(dateTo) entries = entries.filter(f => f.date <= dateTo);
+
+  // Filter by selected crops if any are selected
+  if(selectedAnalyticsCrops.length > 0){
+    entries = entries.filter(f => {
+      // Check if entry note/crop matches any of selected crops
+      const cropInEntry = f.crop || '';
+      const noteInEntry = f.note || '';
+      return selectedAnalyticsCrops.some(sc => cropInEntry === sc || noteInEntry.toLowerCase().includes(sc.toLowerCase()));
+    });
+  }
+
+  const totalLiters = entries.reduce((a, f) => a + f.liters, 0);
+  const totalCost = totalLiters * price;
+  const filterCropTitle = selectedAnalyticsCrops.length > 0 ? selectedAnalyticsCrops.join(' + ') : 'Всі культури';
+
+  // Summary Metrics Card
+  summaryEl.innerHTML = `
+    <div class="total-bar" style="background:linear-gradient(135deg, #16261c 0%, #0d1e13 100%);border-color:var(--green)">
+      <div class="total-bar-label">Обрані культури: <b style="color:var(--green)">${filterCropTitle}</b></div>
+      <div class="total-bar-value" style="color:var(--green)">${totalLiters.toFixed(1)} л</div>
+      <div style="font-size:24px;font-weight:800;color:var(--amber);margin-top:6px">
+        ≈ ${totalCost.toLocaleString('uk-UA', {maximumFractionDigits:2})} ₴
+      </div>
+      <div class="total-bar-sub">Ціна: ${price} ₴/л · Заправок: ${entries.length}</div>
+    </div>
+  `;
+
+  if(!entries.length){
+    detailsEl.innerHTML = '<div class="empty"><div class="empty-icon">🌾</div><div class="empty-title">Немає записів за обраними фільтрами</div></div>';
+    return;
+  }
+
+  // Sort entries descending
+  entries.sort((a, b) => {
+    const da = a.date + ' ' + (a.time || '00:00');
+    const db = b.date + ' ' + (b.time || '00:00');
+    return db.localeCompare(da);
+  });
+
+  detailsEl.innerHTML = entries.map(f => {
+    const v = (state.vehicles || []).find(vv => vv.id === f.vehicleId);
+    const icon = v ? v.type.split(' ')[0] : '🚗';
+    const cost = f.liters * price;
+    const timeStr = f.time ? (' ⏱️ ' + f.time.slice(0,5)) : '';
+    return `<div class="entry-item">
+      <div class="entry-avatar" style="background:var(--greenDim);color:var(--green);font-size:20px">${icon}</div>
+      <div class="entry-info">
+        <div class="entry-name">${v?v.name:'—'}</div>
+        <div class="entry-date">${displayDate(f.date)}${timeStr}${f.note ? ' · ' + f.note : ''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="entry-amount" style="color:var(--green);font-size:18px">${f.liters.toFixed(1)} л</div>
+        <div style="font-size:12px;color:var(--amber);font-weight:700">${cost.toLocaleString('uk-UA', {maximumFractionDigits:0})} ₴</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 
 
 
 // ── iOS PAGE SWIPE ───────────────────────────────────────────
-const TAB_NAMES = ['add','list','summary','chart','workers','fuel'];
+const TAB_NAMES = ['add','list','summary','chart','workers','fuel','crop-analytics'];
 let curTabIdx = 0;
 
 function getCurTabIdx(){

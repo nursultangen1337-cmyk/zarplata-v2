@@ -139,6 +139,14 @@ body{display:flex;flex-direction:column;max-width:960px;margin:0 auto;min-height
           <input type="date" id="fuel-date">
         </div>
       </div>
+      
+      <div class="field">
+        <label style="display:flex;justify-content:space-between;align-items:center">
+          <span>Час заправки *</span>
+          <span style="font-size:12px;color:var(--amber);font-weight:700" id="live-clock-badge">⏱️ 00:00:00</span>
+        </label>
+        <input type="time" id="fuel-time" step="1" style="font-weight:700">
+      </div>
 
       <div class="field" id="crop-field" style="display:none">
         <label>Культура / Врожай (необов'язково)</label>
@@ -146,8 +154,13 @@ body{display:flex;flex-direction:column;max-width:960px;margin:0 auto;min-height
       </div>
 
       <div class="field">
+        <label>Призначення / Мета поїздки</label>
+        <input type="text" id="fuel-purpose" placeholder="Наприклад: Посівна, Доставка зерна, Поле №5...">
+      </div>
+
+      <div class="field">
         <label>Примітка (необов'язково)</label>
-        <input type="text" id="fuel-note" placeholder="Поле №3, маршрут...">
+        <input type="text" id="fuel-note" placeholder="Додаткова інформація...">
       </div>
 
       <button class="btn btn-amber" onclick="addEntry()">⛽ Записати заправку</button>
@@ -247,14 +260,30 @@ function dbSet(key,val){
 }
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function fmtMonth(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
-function displayDate(ds){const[y,m,d]=ds.split('-');return d+'.'+m+'.'+y;}
-function getMonthStr(ds){return ds.slice(0,7);}
+function fmtTime(d){return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');}
+function fmtTimeShort(d){return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+
+function startLiveClock(){
+  const clockBadge = document.getElementById('live-clock-badge');
+  const timeInput = document.getElementById('fuel-time');
+  function update(){
+    const now = new Date();
+    if(clockBadge) clockBadge.textContent = '⏱️ ' + fmtTime(now);
+    if(timeInput && !timeInput.dataset.userEdited){
+      timeInput.value = fmtTimeShort(now);
+    }
+  }
+  update();
+  setInterval(update, 1000);
+  if(timeInput){
+    timeInput.addEventListener('input', () => { timeInput.dataset.userEdited = "true"; });
+  }
+}
 
 function load(){
   initFirebase();
   document.getElementById('fuel-date').value=fmtDate(new Date());
+  startLiveClock();
   if(!firebaseReady){
     openDB().then(()=>dbGet('zarplata_v3')).then(raw=>{
       if(raw){
@@ -317,22 +346,31 @@ function addEntry(){
   if(!selectedVehicle){showToast('Оберіть транспорт!');return;}
   const liters=parseFloat(document.getElementById('fuel-liters').value);
   const date=document.getElementById('fuel-date').value;
+  const time=document.getElementById('fuel-time')?document.getElementById('fuel-time').value:fmtTimeShort(new Date());
+  const purpose=document.getElementById('fuel-purpose')?document.getElementById('fuel-purpose').value.trim():'';
   let note=document.getElementById('fuel-note').value.trim();
-  if(selectedCrop){
-    note = note ? (selectedCrop + ' · ' + note) : selectedCrop;
-  }
+  
+  const notesParts=[];
+  if(selectedCrop) notesParts.push('🌱 '+selectedCrop);
+  if(purpose) notesParts.push('🎯 '+purpose);
+  if(note) notesParts.push(note);
+  const fullNote = notesParts.join(' · ');
 
   if(!liters||liters<=0){showToast('Введіть кількість літрів!');return;}
   if(!date){showToast('Вкажіть дату!');return;}
   
-  const entry={id:uid(),vehicleId:selectedVehicle,liters,date,note};
+  const entry={id:uid(),vehicleId:selectedVehicle,liters,date,time,crop:selectedCrop||'',purpose,note:fullNote};
   state.fuelEntries.push(entry);
   save();
   
   const v=state.vehicles.find(vv=>vv.id===selectedVehicle);
   flyFuel(liters);
   document.getElementById('fuel-liters').value='';
+  if(document.getElementById('fuel-purpose')) document.getElementById('fuel-purpose').value='';
   document.getElementById('fuel-note').value='';
+  if(document.getElementById('fuel-time')) delete document.getElementById('fuel-time').dataset.userEdited;
+  selectedCrop=null;
+  renderCropChips();
   updateBigDisplay(0);
   
   showToast('✓ '+(v?v.name:'')+' — '+liters+' л');
@@ -350,11 +388,13 @@ function renderEntries(){
   el.innerHTML=entries.map(f=>{
     const v=state.vehicles.find(vv=>vv.id===f.vehicleId);
     const icon=v?v.type.split(' ')[0]:'🚗';
+    const detail = f.note || f.purpose || '';
+    const timeStr = f.time ? (' (' + f.time.slice(0,5) + ')') : '';
     return `<div class="entry-item">
       <div class="entry-icon">${icon}</div>
       <div class="entry-info">
         <div class="entry-name">${v?v.name:'—'}</div>
-        <div class="entry-date">${displayDate(f.date)}${f.note?' · '+f.note:''}</div>
+        <div class="entry-date">${displayDate(f.date)}${timeStr}${detail?' · '+detail:''}</div>
       </div>
       <div class="entry-liters">${f.liters.toFixed(1)} л</div>
     </div>`;
