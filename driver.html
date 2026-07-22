@@ -153,7 +153,7 @@ body{display:flex;flex-direction:column;max-width:960px;margin:0 auto;min-height
         <input type="text" id="fuel-note" placeholder="Додаткова інформація...">
       </div>
 
-      <button class="btn btn-amber" onclick="addEntry()">⛽ Записати заправку</button>
+      <button type="button" id="submit-fuel-btn" class="btn btn-amber" onclick="addEntry()" style="touch-action:manipulation;user-select:none;-webkit-user-select:none;">⛽ Записати заправку</button>
     </div>
 
     <div class="stat-row" id="stat-row">
@@ -437,6 +437,15 @@ function showToast(msg){
 }
 
 load();
+document.addEventListener('DOMContentLoaded', function(){
+  const btn = document.getElementById('submit-fuel-btn');
+  if(btn){
+    btn.addEventListener('touchend', function(e){
+      e.preventDefault();
+      addEntry();
+    }, {passive: false});
+  }
+});
 </script>
 </body>
 </html>

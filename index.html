@@ -414,7 +414,7 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
         <label>Примітка (необов'язково)</label>
         <input type="text" id="fuel-note" placeholder="Додаткові деталі...">
       </div>
-      <button class="btn btn-green" style="background:var(--amber);color:#0d1117" onclick="addFuelEntry()">Записати заправку</button>
+      <button type="button" class="btn btn-green" style="background:var(--amber);color:#0d1117;touch-action:manipulation;user-select:none;-webkit-user-select:none;" onclick="addFuelEntry()">Записати заправку</button>
     </div>
 
     <div class="section-label">Підсумок пального</div>
