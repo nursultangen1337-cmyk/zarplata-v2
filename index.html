@@ -505,11 +505,11 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
   <!-- АНАЛІТИКА ПАЛЬНОГО ТА КУЛЬТУР -->
   <div id="screen-crop-analytics" class="screen">
     <div class="form-card">
-      <div class="form-title">📊 Аналітика пального & Культури</div>
+      <div class="form-title">📊 Калькулятор & Аналітика пального</div>
       
       <div class="field-row">
         <div class="field">
-          <label>Ціна за 1 літр пального (₴)</label>
+          <label>Ціна пального за 1 л (₴)</label>
           <input type="number" id="analytics-fuel-price" placeholder="55.0" step="0.1" min="0" value="55" oninput="renderCropAnalytics()">
         </div>
         <div class="field">
@@ -522,16 +522,16 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
 
       <div class="field-row">
         <div class="field">
-          <label>Дата від</label>
+          <label>З якого числа</label>
           <input type="date" id="analytics-date-from" onchange="renderCropAnalytics()">
         </div>
         <div class="field">
-          <label>Дата до</label>
+          <label>По яке число</label>
           <input type="date" id="analytics-date-to" onchange="renderCropAnalytics()">
         </div>
       </div>
 
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
         <button class="btn btn-outline btn-sm" onclick="setAnalyticsQuickDays(0)">Сьогодні</button>
         <button class="btn btn-outline btn-sm" onclick="setAnalyticsQuickDays(7)">7 днів</button>
         <button class="btn btn-outline btn-sm" onclick="setAnalyticsQuickDays(30)">30 днів</button>
@@ -539,17 +539,17 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
       </div>
 
       <div class="field">
-        <label>Оберіть культури для підрахунку (можна декілька):</label>
-        <div id="analytics-crop-checkboxes" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+        <label>Оберіть культуру для підрахунку (можна декілька):</label>
+        <div id="analytics-crop-checkboxes" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
           <!-- Checkboxes for crops -->
         </div>
       </div>
     </div>
 
-    <!-- РЕЗУЛЬТАТИ АНАЛІТИКИ -->
+    <!-- РЕЗУЛЬТАТИ ПІДРАХУНКУ ВИТРАТ -->
     <div id="analytics-summary-cards"></div>
 
-    <div class="section-label">Деталізація заправки по культурах</div>
+    <div class="section-label">Записи заправки по обраних фільтрах</div>
     <div id="analytics-details-list"></div>
   </div><!-- /screen-crop-analytics -->
 
