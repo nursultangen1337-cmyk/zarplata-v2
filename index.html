@@ -495,15 +495,17 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
             <option>🌾 Комбайн</option>
             <option>⚙️ Інша техніка</option>
           </select>
-      <button class="btn btn-green" style="background:var(--amber);color:#0d1117" onclick="addVehicle()">Додати</button>
+        </div>
+      </div>
+      <button class="btn btn-green" style="background:var(--amber);color:#0d1117" onclick="addVehicle()">Додати транспорт</button>
     </div>
     <div id="vehicles-list"></div>
-  </div>
+  </div><!-- /screen-fuel -->
 
-  <!-- АНАЛІТИКА КУЛЬТУР ТА ВИТРАТ -->
+  <!-- АНАЛІТИКА ПАЛЬНОГО ТА КУЛЬТУР -->
   <div id="screen-crop-analytics" class="screen">
     <div class="form-card">
-      <div class="form-title">🌾 Аналітика заправки & Культури</div>
+      <div class="form-title">📊 Аналітика пального & Культури</div>
       
       <div class="field-row">
         <div class="field">
@@ -549,7 +551,7 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height
 
     <div class="section-label">Деталізація заправки по культурах</div>
     <div id="analytics-details-list"></div>
-  </div>
+  </div><!-- /screen-crop-analytics -->
 
 </div><!-- /screens-track -->
 </div>
