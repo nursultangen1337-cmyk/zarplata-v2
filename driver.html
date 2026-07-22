@@ -249,8 +249,13 @@ function dbSet(key,val){
   });
 }
 
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtMonth(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function displayDate(ds){if(!ds)return '—';const[y,m,d]=ds.split('-');return d+'.'+m+'.'+y;}
+function getMonthStr(ds){return ds?ds.slice(0,7):'';}
+
 function getKyivNow(){
-  // Returns Date object adjusted or formatted to Europe/Kiev
   return new Date();
 }
 
