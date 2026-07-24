@@ -40,11 +40,17 @@ body{display:flex;flex-direction:column;max-width:960px;margin:0 auto;min-height
 .field select option{background:var(--bg3)}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
-/* ВЕЛИКИЙ ЦИФРОВИЙ ДИСПЛЕЙ ДЛЯ ЛІТРІВ */
-.liters-display-box{background:linear-gradient(145deg, #121820, #1a222c);border:2px solid var(--amber);border-radius:18px;padding:16px;text-align:center;margin-bottom:20px;box-shadow:inset 0 2px 10px rgba(0,0,0,0.5), 0 0 20px rgba(210,153,34,0.15)}
-.liters-label{font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px}
-.liters-big-num{font-size:56px;font-weight:900;color:#fff;line-height:1.1;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;text-shadow:0 0 16px rgba(210,153,34,0.4)}
-.liters-unit{font-size:22px;color:var(--amber);margin-left:4px;font-weight:700}
+/* ВЕЛИКИЙ ЦИФРОВИЙ ДИСПЛЕЙ-ВВІД ДЛЯ ЛІТРІВ */
+.liters-display-box{background:linear-gradient(145deg, #121820, #1a222c);border:2px solid var(--amber);border-radius:20px;padding:20px 16px;text-align:center;margin-bottom:20px;box-shadow:inset 0 2px 10px rgba(0,0,0,0.5), 0 0 20px rgba(210,153,34,0.15);cursor:pointer;transition:all 0.2s ease}
+.liters-display-box:active, .liters-display-box:focus-within{border-color:#f5b027;box-shadow:inset 0 2px 10px rgba(0,0,0,0.5), 0 0 30px rgba(210,153,34,0.4);transform:scale(1.01)}
+.liters-label{font-size:13px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.liters-input-wrapper{display:flex;align-items:center;justify-content:center;gap:6px}
+#fuel-liters{background:transparent !important;border:none !important;box-shadow:none !important;font-size:64px !important;font-weight:900 !important;color:#fff !important;text-align:center !important;min-width:140px !important;max-width:300px !important;width:auto !important;line-height:1.1 !important;letter-spacing:-0.03em !important;font-variant-numeric:tabular-nums !important;text-shadow:0 0 20px rgba(210,153,34,0.6) !important;outline:none !important;padding:0 !important;margin:0 !important;font-family:inherit !important}
+#fuel-liters::placeholder{color:rgba(255,255,255,0.25);text-shadow:none}
+#fuel-liters:focus{outline:none !important;border:none !important;box-shadow:none !important}
+#fuel-liters::-webkit-outer-spin-button, #fuel-liters::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+#fuel-liters[type=number]{-moz-appearance:textfield}
+.liters-unit{font-size:28px;color:var(--amber);font-weight:800;text-shadow:0 0 10px rgba(210,153,34,0.4)}
 
 .btn{width:100%;padding:18px;border-radius:var(--radius-sm);font-size:20px;font-weight:800;border:none;cursor:pointer;transition:all .15s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px}
 .btn:active{transform:scale(.98)}
@@ -120,19 +126,12 @@ body{display:flex;flex-direction:column;max-width:960px;margin:0 auto;min-height
         <div id="vehicle-chips"></div>
       </div>
 
-      <!-- ВЕЛИКИЙ ДИСПЛЕЙ ДЛЯ ТЫКАННЯ ЦИФР ВОДІЯМ -->
-      <div class="liters-display-box">
-        <div class="liters-label">Кількість літрів</div>
-        <div>
-          <span class="liters-big-num" id="big-liters-num">0</span>
+      <!-- ВЕЛИКИЙ ІНТЕРАКТИВНИЙ ДИСПЛЕЙ ДЛЯ ВВОДУ ЛІТРІВ -->
+      <div class="liters-display-box" onclick="document.getElementById('fuel-liters').focus()">
+        <div class="liters-label">Кількість літрів (торкніться для вводу) ✏️</div>
+        <div class="liters-input-wrapper">
+          <input type="number" id="fuel-liters" placeholder="0" inputmode="decimal" step="0.1" min="0">
           <span class="liters-unit">л</span>
-        </div>
-      </div>
-
-      <div class="field-row">
-        <div class="field" style="grid-column: span 2">
-          <label>Введіть літри *</label>
-          <input type="number" id="fuel-liters" placeholder="0" inputmode="decimal" step="0.1" min="0" oninput="updateBigDisplay(this.value)">
         </div>
       </div>
       
@@ -187,10 +186,8 @@ let selectedCrop = null;
 
 function updateBigDisplay(val){
   const el = document.getElementById('big-liters-num');
-  if(!val || parseFloat(val) <= 0){
-    el.textContent = '0';
-  } else {
-    el.textContent = val;
+  if(el){
+    el.textContent = (!val || parseFloat(val) <= 0) ? '0' : val;
   }
 }
 
